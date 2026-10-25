@@ -1,11 +1,21 @@
-import { useEffect, useState } from "react";
-import { pdf } from "@react-pdf/renderer";
+import { useEffect, useRef, useState } from "react";
 import { ResumeForm } from "./ResumeForm";
-import { ResumePDF, TEMPLATES } from "./ResumePDF";
+import { TEMPLATES } from "./templates";
 import { blankResume, resumeToText, sampleResume } from "../resume";
 import { api } from "../api";
 
 const STORAGE_KEY = "ats-resume-maker:resume";
+
+// @react-pdf/renderer is most of the bundle, so it is loaded in its own chunk
+// after the page has rendered. The promise is shared so it downloads once.
+let rendererPromise;
+function renderPdf(resume, template) {
+  rendererPromise ??= import("./renderPdf").catch((e) => {
+    rendererPromise = undefined; // allow a retry after a network error
+    throw e;
+  });
+  return rendererPromise.then((m) => m.renderPdf(resume, template));
+}
 
 function loadSaved() {
   try {
@@ -20,15 +30,24 @@ function loadSaved() {
 // Re-renders the PDF shortly after the user stops typing.
 function usePdfUrl(resume, template) {
   const [url, setUrl] = useState(null);
+  const [error, setError] = useState("");
+  const rendered = useRef(false);
   useEffect(() => {
     let cancelled = false;
     let objectUrl;
+    // The first preview renders right away; later ones wait for a pause in typing.
     const timer = setTimeout(async () => {
-      const blob = await pdf(<ResumePDF resume={resume} template={template} />).toBlob();
-      if (cancelled) return;
-      objectUrl = URL.createObjectURL(blob);
-      setUrl(objectUrl);
-    }, 500);
+      try {
+        const blob = await renderPdf(resume, template);
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        rendered.current = true;
+        setUrl(objectUrl);
+        setError("");
+      } catch {
+        if (!cancelled) setError("Could not render the preview. Check your connection and try editing again.");
+      }
+    }, rendered.current ? 500 : 0);
     return () => {
       cancelled = true;
       clearTimeout(timer);
@@ -36,14 +55,14 @@ function usePdfUrl(resume, template) {
       if (objectUrl) setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
     };
   }, [resume, template]);
-  return url;
+  return { url, error };
 }
 
 export function Builder({ aiAvailable, onAnalyze }) {
   const [{ resume, template }, setState] = useState(loadSaved);
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [error, setError] = useState("");
-  const pdfUrl = usePdfUrl(resume, template);
+  const { url: pdfUrl, error: previewError } = usePdfUrl(resume, template);
 
   useEffect(() => {
     try {
@@ -59,7 +78,14 @@ export function Builder({ aiAvailable, onAnalyze }) {
   const fileName = `${(resume.name || "resume").trim().replace(/\s+/g, "_")}_Resume.pdf`;
 
   async function download() {
-    const blob = await pdf(<ResumePDF resume={resume} template={template} />).toBlob();
+    setError("");
+    let blob;
+    try {
+      blob = await renderPdf(resume, template);
+    } catch {
+      setError("Could not create the PDF. Check your connection and try again.");
+      return;
+    }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = fileName;
@@ -118,7 +144,9 @@ export function Builder({ aiAvailable, onAnalyze }) {
           {pdfUrl ? (
             <iframe title="Resume preview" src={`${pdfUrl}#toolbar=0&navpanes=0`} className="h-[80vh] w-full" />
           ) : (
-            <div className="flex h-[80vh] items-center justify-center text-sm text-slate-500">Rendering preview...</div>
+            <div className="flex h-[80vh] items-center justify-center text-sm text-slate-500">
+              {previewError || "Rendering preview..."}
+            </div>
           )}
         </div>
       </div>

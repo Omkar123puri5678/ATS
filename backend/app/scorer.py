@@ -1,6 +1,7 @@
 """Rule-based ATS scoring. Runs fully offline, no AI model required."""
 import re
 from collections import Counter
+from functools import lru_cache
 
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -16,6 +17,13 @@ SECTIONS = {
     "certifications": [r"certifications?", r"courses", r"licenses"],
 }
 REQUIRED_SECTIONS = ["experience", "education", "skills"]
+
+# Precompiled per section: a heading matches if it is exactly the name (optionally
+# "X & Y" / "X and Y") or starts with it as a whole word.
+_SECTION_RES = {
+    name: [(re.compile(rf"({p})(\s*&.*|\s+and.*)?"), re.compile(rf"^{p}\b")) for p in patterns]
+    for name, patterns in SECTIONS.items()
+}
 
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 PHONE_RE = re.compile(r"(\+?\d[\d\s().-]{8,}\d)")
@@ -34,6 +42,7 @@ WEIGHTS = {
 }
 
 
+@lru_cache(maxsize=2048)
 def _term_pattern(term: str) -> re.Pattern:
     # Custom boundaries so terms like "c++", "c#" and "node.js" match correctly.
     return re.compile(rf"(?<![\w+#]){re.escape(term)}(?![\w+#])", re.I)
@@ -69,14 +78,10 @@ def detect_sections(text: str) -> dict[str, bool]:
     # Headings are short lines; checking only those avoids false positives
     # like "experience" appearing in a sentence.
     headings = [l.lower().strip(":•-– ") for l in lines if len(l.split()) <= 5]
-    result = {}
-    for name, patterns in SECTIONS.items():
-        result[name] = any(
-            re.fullmatch(rf"({p})(\s*&.*|\s+and.*)?", h) or re.match(rf"^{p}\b", h)
-            for h in headings
-            for p in patterns
-        )
-    return result
+    return {
+        name: any(full.fullmatch(h) or prefix.match(h) for h in headings for full, prefix in res)
+        for name, res in _SECTION_RES.items()
+    }
 
 
 BULLET_CHARS = "•-*–▪●◦➢►"

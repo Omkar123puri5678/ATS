@@ -4,7 +4,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  // @react-pdf/renderer is large by design; the warning is expected.
+  // @react-pdf/renderer is large by design. It is lazy-loaded into its own
+  // chunk (see builder/Builder.jsx), so its size does not delay the first paint.
   build: { chunkSizeWarningLimit: 2000 },
   server: {
     proxy: {

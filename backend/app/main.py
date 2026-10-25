@@ -1,6 +1,7 @@
 import os
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -45,22 +46,26 @@ async def analyze_upload(
     file: UploadFile = File(...),
     job_description: str = Form(""),
 ):
-    data = await file.read()
+    # Read one byte past the limit so oversized files are rejected without
+    # loading all of them into memory.
+    data = await file.read(MAX_UPLOAD_BYTES + 1)
     if len(data) > MAX_UPLOAD_BYTES:
         raise HTTPException(413, "File is larger than 5 MB.")
+    # Parsing and scoring are CPU-bound; run them in a worker thread so one
+    # large PDF does not block every other request.
     try:
-        text = extract_text(file.filename or "", data)
+        text = await run_in_threadpool(extract_text, file.filename or "", data)
     except UnsupportedFileError as e:
         raise HTTPException(415, str(e))
     except Exception:
         raise HTTPException(422, "Could not read this file. Is it a valid, non-encrypted document?")
-    result = analyze(text, job_description)
+    result = await run_in_threadpool(analyze, text, job_description)
     result["resume_text"] = text
     return result
 
 
 @app.post("/api/analyze-text")
-async def analyze_text(req: AnalyzeTextRequest):
+def analyze_text(req: AnalyzeTextRequest):  # sync: FastAPI runs it in a worker thread
     return analyze(req.resume_text, req.job_description)
 
 
