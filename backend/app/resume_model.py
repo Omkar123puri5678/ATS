@@ -24,6 +24,8 @@ DATE_FIELDS = {"start", "end"}
 # Small models sometimes copy the prompt's "Mon YYYY" format hint literally.
 _PLACEHOLDER_MONTH = re.compile(r"^(?:mon|mm|month)\.?\s+(?=\d{4}$)", re.I)
 _SYNONYM_OF = {alt: canon for canon, alts in SYNONYMS.items() for alt in alts}
+# What models write instead of leaving a field empty.
+_FILLER = re.compile(r"^(?:not specified|not mentioned|not provided|unknown|n/?a|none|null|-)\.?$", re.I)
 # Labels models emit when they copy the prompt's shape instead of naming a group.
 _GENERIC_LABEL = re.compile(r"^(?:category|categories|skills?|group)\s*\d*$", re.I)
 
@@ -39,6 +41,8 @@ def _text(value, multiline: bool = False) -> str:
         # e.g. skills as {"Languages": [...], "Tools": [...]}
         return "\n".join(f"{k}: {_text(v)}" for k, v in value.items() if _text(v))
     text = str(value).strip()
+    if _FILLER.match(text):
+        return ""
     if multiline:
         lines = (_BULLET_PREFIX.sub("", l).strip() for l in text.splitlines())
         return "\n".join(l for l in lines if l)

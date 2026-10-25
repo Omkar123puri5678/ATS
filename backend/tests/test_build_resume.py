@@ -176,3 +176,9 @@ def test_masks_numbers_not_in_original():
 def test_restore_needs_a_real_skills_heading():
     source = "I want a job where I can use my\nskills and grow.\nI worked in marketing and know MS Office and Excel."
     assert restore_missing_skills("", source) == ("", [])
+
+
+def test_filler_values_become_empty():
+    r = normalize({"location": "N/A", "experience": [{"role": "Marketing", "company": "Not Specified", "start": "Unknown"}]})
+    assert r["location"] == ""
+    assert r["experience"][0]["company"] == "" and r["experience"][0]["start"] == ""
