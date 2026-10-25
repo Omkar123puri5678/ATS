@@ -4,12 +4,13 @@ Thanks for helping improve ATS Resume Maker!
 
 ## Getting set up
 
-Follow the "Run locally" steps in the [README](README.md). Run the backend tests with `pytest` from `backend/`.
+Follow the "Run locally" steps in the [README](README.md), and read the
+[Developer Guide](docs/DEVELOPER_GUIDE.md) and [Architecture](docs/ARCHITECTURE.md). Run the backend tests with `pytest` from `backend/`.
 
 ## Ways to contribute
 
 - **Skills vocabulary:** add terms for your field to `backend/app/skills.py` (lowercase).
-- **Templates:** add an entry to `TEMPLATES` in `frontend/src/builder/ResumePDF.jsx`.
+- **Templates:** add an entry to `TEMPLATES` in `frontend/src/builder/templates.js`.
   Keep templates ATS-friendly: single column, standard fonts, standard headings, no images or tables.
 - **Scoring:** improve checks in `backend/app/scorer.py`. Please add a test in `backend/tests/` for any change.
 - **Bugs and ideas:** open an issue with steps to reproduce or a short description.

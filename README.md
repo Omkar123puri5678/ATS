@@ -1,5 +1,8 @@
 # 📄 ATS Resume Maker
 
+[![CI](https://github.com/Omkar123puri5678/ATS/actions/workflows/ci.yml/badge.svg)](https://github.com/Omkar123puri5678/ATS/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 An open-source resume builder with an AI-powered ATS (Applicant Tracking System) analyzer.
 Build an ATS-friendly resume, export it as a PDF, and score any resume against a job description,
 all without paid APIs. AI features run on **local open-source models** through [Ollama](https://ollama.com),
@@ -24,6 +27,27 @@ so your resume never leaves your machine.
 - Rewrites weak bullet points with action verbs and measurable impact
 - Writes a professional summary from your resume
 - Powered by any Ollama model (default: `llama3.2`). The rest of the app works fine without it.
+
+## Documentation
+
+| Doc | What's inside |
+|---|---|
+| [User Guide](docs/USER_GUIDE.md) | Step-by-step: build a resume, check your score, read the report, AI setup, troubleshooting |
+| [Architecture](docs/ARCHITECTURE.md) | Block diagram, components, scoring engine, API, deployment, design decisions |
+| [Workflows](docs/WORKFLOW.md) | User journey and sequence diagrams for every flow, plus the development workflow |
+| [Developer Guide](docs/DEVELOPER_GUIDE.md) | Setup, configuration, adding skills/templates/checks, testing, CI, Docker, releasing |
+
+## Architecture at a glance
+
+```mermaid
+flowchart LR
+    user(["User"]) --> fe["React app<br/>builder · PDF export · analyzer"]
+    fe -- "/api" --> be["FastAPI<br/>parse · score"]
+    be -. "optional" .-> ai[["Ollama<br/>local LLM"]]
+```
+
+PDFs are generated in the browser; the backend only parses and scores. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full block diagram.
 
 ## How the scoring works
 
@@ -110,6 +134,8 @@ Interactive docs are at http://localhost:8000/docs when the backend is running.
 ## Project structure
 
 ```
+.github/workflows/ci.yml   Tests and build on every push / PR
+docs/                      User guide, architecture, workflows, developer guide
 backend/
   app/
     main.py        FastAPI routes
@@ -120,7 +146,7 @@ backend/
   tests/
 frontend/
   src/
-    builder/       Resume form, PDF templates, live preview
+    builder/       Resume form, templates, PDF rendering (lazy-loaded), live preview
     analyzer/      Upload, scoring report, AI rewrites
     resume.js      Resume data model
 ```
