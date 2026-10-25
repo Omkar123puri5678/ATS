@@ -4,6 +4,8 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
+backend/static/
+desktop/build/
 
 # Node
 node_modules/

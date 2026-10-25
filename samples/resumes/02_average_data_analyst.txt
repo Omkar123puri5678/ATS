@@ -1,0 +1,18 @@
+Sneha Kulkarni
+sneha.k@example.com | +91 90000 22222
+
+EXPERIENCE
+Data Analyst, Riverstone Retail (2022 - Present)
+- Responsible for creating weekly sales reports in Excel
+- Worked on dashboards in Power BI for the sales team
+- Helped clean customer data using SQL
+- Created a Tableau dashboard that cut reporting time by 20%
+Junior Analyst, Bluepeak Services (2021 - 2022)
+- Was part of a team that analyzed survey data
+- Prepared presentations for management
+
+EDUCATION
+B.Sc in Statistics, Demo University, 2018 - 2021
+
+SKILLS
+Excel, SQL, Power BI, Tableau, Python (basic), Communication

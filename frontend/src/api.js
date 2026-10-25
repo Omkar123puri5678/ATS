@@ -29,6 +29,13 @@ export const api = {
   rewriteBullets: (bullets, jobDescription) =>
     request("/ai/rewrite-bullets", json({ bullets, job_description: jobDescription })),
 
+  buildResume(file, jobDescription) {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("job_description", jobDescription);
+    return request("/ai/build-resume", { method: "POST", body: form });
+  },
+
   summary: (resumeText, jobDescription) =>
     request("/ai/summary", json({ resume_text: resumeText, job_description: jobDescription })),
 };

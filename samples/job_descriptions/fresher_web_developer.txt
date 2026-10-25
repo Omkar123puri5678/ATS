@@ -1,0 +1,3 @@
+Junior Web Developer (Freshers welcome)
+Requirements: JavaScript, React, HTML, CSS, Git, REST APIs, basic SQL.
+Nice to have: Node.js, Tailwind CSS, Python, any internship or project experience.

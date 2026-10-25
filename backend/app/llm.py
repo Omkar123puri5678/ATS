@@ -28,9 +28,12 @@ async def status() -> dict:
     return {"available": has_model, "model": OLLAMA_MODEL, "models": models}
 
 
-async def _generate(prompt: str) -> str:
+async def _generate(prompt: str, timeout: float = 120, num_ctx: int | None = None) -> str:
+    options = {"temperature": 0.4}
+    if num_ctx:
+        options["num_ctx"] = num_ctx
     try:
-        async with httpx.AsyncClient(timeout=120) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             r = await client.post(
                 f"{OLLAMA_URL}/api/generate",
                 json={
@@ -38,7 +41,7 @@ async def _generate(prompt: str) -> str:
                     "prompt": prompt,
                     "stream": False,
                     "format": "json",
-                    "options": {"temperature": 0.4},
+                    "options": options,
                 },
             )
             r.raise_for_status()
@@ -88,3 +91,58 @@ Respond with JSON only: {{"summary": "..."}}"""
         return json.loads(raw).get("summary", "")
     except (json.JSONDecodeError, AttributeError):
         return ""
+
+
+RESUME_SCHEMA = """{
+  "name": "", "title": "", "email": "", "phone": "", "location": "",
+  "links": "one link per line",
+  "summary": "",
+  "experience": [{"role": "", "company": "", "location": "", "start": "", "end": "", "bullets": ["..."]}],
+  "projects": [{"name": "", "tech": "comma-separated", "link": "", "bullets": ["..."]}],
+  "education": [{"degree": "", "school": "", "start": "", "end": "", "details": ""}],
+  "skills": ["Category: skill, skill, skill"],
+  "certifications": ["..."]
+}"""
+
+
+async def build_resume(resume_text: str, job_description: str = "") -> dict:
+    """Read a resume in any layout and return it rewritten in the builder's format.
+
+    Returns the raw parsed JSON; callers should pass it through resume_model.normalize.
+    """
+    jd_part = (
+        f"""
+Tailor it to this job description: put the most relevant experience and skills first and use
+its keywords wherever they truthfully describe the candidate's work.
+Job description:
+{job_description[:3000]}
+"""
+        if job_description
+        else ""
+    )
+    prompt = f"""You are an expert resume writer who knows how Applicant Tracking Systems parse resumes.
+Read the resume below. Its text may be jumbled by columns, tables or icons. Extract EVERY piece
+of information and rebuild it as a clean, ATS-friendly resume:
+- keep all jobs, projects, education, skills and certifications; never drop an entry
+- never invent employers, titles, dates, degrees, skills or numbers
+- rewrite each bullet to start with a strong action verb, under 30 words, focused on impact;
+  if a metric is missing, add a placeholder like [X%] rather than making one up
+- write a 2-3 sentence professional summary from the resume's facts, no first-person pronouns
+- "title" is the candidate's target or current job title
+- dates as "Mon YYYY" (e.g. "Jun 2024"); use "Present" for current roles
+- group skills into a few categories, one category per list item
+- use "" or [] for anything the resume does not contain
+{jd_part}
+Resume:
+{resume_text[:8000]}
+
+Respond with JSON only, exactly in this shape:
+{RESUME_SCHEMA}"""
+    # Long input and output: allow a bigger context window and more time than
+    # the other prompts, since small local models can be slow here.
+    raw = await _generate(prompt, timeout=300, num_ctx=8192)
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+    return data if isinstance(data, dict) else {}

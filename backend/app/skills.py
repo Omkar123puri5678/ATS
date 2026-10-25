@@ -13,7 +13,7 @@ SKILLS = {
     "tailwind", "bootstrap", "jquery", "webpack", "vite", "flutter",
     # Backend
     "node.js", "express", "django", "flask", "fastapi", "spring", "spring boot",
-    ".net", "asp.net", "laravel", "rails", "graphql", "rest api", "restful",
+    ".net", "asp.net", "laravel", "rails", "graphql", "rest api",
     "microservices", "grpc",
     # Data / AI
     "machine learning", "deep learning", "nlp", "computer vision", "pandas",
@@ -38,7 +38,61 @@ SKILLS = {
     "project management", "stakeholder management", "time management",
     "critical thinking", "customer service", "sales", "marketing", "seo",
     "content writing", "figma", "ui/ux",
+    # Marketing / analytics
+    "sem", "google ads", "meta ads", "google analytics", "content marketing",
+    "email marketing", "social media marketing", "social media", "copywriting",
+    "a/b testing", "data cleaning", "crm", "hubspot", "salesforce",
 }
+
+# Other ways people write the same skill. Keys must be in SKILLS; a resume that
+# uses any alias gets credit for the key. Keep aliases unambiguous: "go" or
+# "ts" would match ordinary words.
+SYNONYMS = {
+    "javascript": ["js", "ecmascript", "es6"],
+    "node.js": ["nodejs", "node js"],
+    "react": ["react.js", "reactjs"],
+    "next.js": ["nextjs"],
+    "vue": ["vue.js", "vuejs"],
+    "c++": ["cpp"],
+    "c#": ["csharp", "c sharp"],
+    "golang": ["go lang"],
+    "postgresql": ["postgres", "psql"],
+    "mongodb": ["mongo"],
+    "kubernetes": ["k8s"],
+    "aws": ["amazon web services"],
+    "gcp": ["google cloud", "google cloud platform"],
+    "azure": ["microsoft azure"],
+    "ci/cd": ["cicd", "ci cd", "continuous integration", "continuous delivery", "continuous deployment"],
+    "rest api": ["restful", "restful api", "restful services", "rest services"],
+    "unit testing": ["unit tests", "unit test", "unit-tested", "unit-testing"],
+    "machine learning": ["ml"],
+    "nlp": ["natural language processing"],
+    "scikit-learn": ["sklearn", "scikit learn"],
+    "power bi": ["powerbi"],
+    "excel": ["ms excel", "microsoft excel"],
+    "seo": ["search engine optimization", "search engine optimisation"],
+    "sem": ["search engine marketing"],
+    "google ads": ["adwords", "google adwords"],
+    "meta ads": ["facebook ads", "instagram ads"],
+    "ui/ux": ["ui ux", "ux/ui", "user experience"],
+    "generative ai": ["genai", "gen ai"],
+    "llm": ["large language model", "large language models"],
+    "oop": ["object oriented programming", "object-oriented programming"],
+    "data structures": ["dsa"],
+    "github actions": ["gh actions"],
+    "data visualization": ["data visualisation", "data viz"],
+    "social media marketing": ["smm", "social media"],
+    "a/b testing": ["a/b tests", "ab testing", "split testing"],
+}
+
+# Phrases that mark a job-description requirement as optional.
+NICE_TO_HAVE = [
+    "nice to have", "nice-to-have", "good to have", "is a plus", "a plus", "plus:",
+    "bonus", "preferred", "preferably", "optional", "advantage", "desirable", "ideally",
+]
+
+# Filler words that make a bullet point vague even when it has a verb and a number.
+VAGUE_WORDS = {"things", "stuff", "various", "etc", "miscellaneous"}
 
 ACTION_VERBS = {
     "achieved", "analyzed", "architected", "automated", "built", "collaborated",

@@ -1,0 +1,4 @@
+Backend Software Engineer
+We are hiring a backend engineer with 2+ years of experience.
+Requirements: Python, FastAPI or Django, PostgreSQL, Redis, Docker, Kubernetes, AWS, REST APIs,
+microservices, CI/CD, Git, unit testing. Experience with React or TypeScript is a plus.

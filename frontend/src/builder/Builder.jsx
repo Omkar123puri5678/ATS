@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ImportResume } from "./ImportResume";
 import { ResumeForm } from "./ResumeForm";
 import { TEMPLATES } from "./templates";
 import { blankResume, resumeToText, sampleResume } from "../resume";
@@ -123,6 +124,7 @@ export function Builder({ aiAvailable, onAnalyze }) {
             Clear
           </button>
         </div>
+        <ImportResume aiAvailable={aiAvailable} onImported={setResume} />
         {error && <p className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         <ResumeForm
           resume={resume}

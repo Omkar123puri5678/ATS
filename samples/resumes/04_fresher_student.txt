@@ -1,0 +1,24 @@
+Priya Nair
+priya.nair@example.com | +91 90000 44444 | github.com/priya-demo
+
+SUMMARY
+Final-year computer science student interested in web development and machine learning.
+
+EDUCATION
+B.E. in Computer Engineering, Demo College of Engineering, 2022 - 2026, CGPA 8.4
+
+PROJECTS
+- Built a movie recommendation system in Python with scikit-learn and Pandas (85% precision on test set)
+- Developed a college event portal in React and Firebase used by 600 students
+- Created a REST API in Flask for a library management system
+
+EXPERIENCE
+Web Development Intern, Pixel Forge (May 2025 - Jul 2025)
+- Implemented 6 responsive pages in React and Tailwind CSS
+- Fixed 25 UI bugs reported by QA
+
+SKILLS
+Python, Java, JavaScript, React, Flask, HTML, CSS, SQL, MySQL, Git, Pandas, scikit-learn
+
+CERTIFICATIONS
+Machine Learning Specialization (online course, 2025)

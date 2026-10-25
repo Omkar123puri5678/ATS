@@ -1,0 +1,4 @@
+Data Analyst
+Looking for a data analyst to build dashboards and reports for business teams.
+Requirements: SQL, Excel, Power BI or Tableau, Python with Pandas, statistics, data cleaning,
+data visualization, stakeholder communication. Experience with A/B testing is a plus.

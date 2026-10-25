@@ -45,6 +45,9 @@ export function Results({ result, hasJobDescription }) {
     result.score >= 80 ? "Strong. This resume should pass most ATS filters."
     : result.score >= 60 ? "Decent, but a few fixes will noticeably improve your chances."
     : "Needs work. Fix the high-priority issues below first.";
+  // Older backends do not send these lists.
+  const listedOnly = new Set(result.keywords.listed_only || []);
+  const optional = new Set(result.keywords.optional || []);
 
   return (
     <div className="space-y-6">
@@ -70,16 +73,37 @@ export function Results({ result, hasJobDescription }) {
         <div className="card">
           <h3 className="font-semibold text-slate-800">Keywords from the job description</h3>
           <div className="mt-3 flex flex-wrap gap-2">
-            {result.keywords.matched.map((k) => (
-              <span key={k} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">✓ {k}</span>
-            ))}
-            {result.keywords.missing.map((k) => (
-              <span key={k} className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-red-200">✗ {k}</span>
-            ))}
+            {result.keywords.matched.map((k) =>
+              listedOnly.has(k) ? (
+                <span key={k} title="Only in your skills list. Show it in an experience or project bullet for full credit."
+                  className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 ring-1 ring-amber-200">
+                  ~ {k} <span className="font-normal">· listed only</span>
+                </span>
+              ) : (
+                <span key={k} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200">✓ {k}</span>
+              )
+            )}
+            {result.keywords.missing.map((k) =>
+              optional.has(k) ? (
+                <span key={k} title="The job description marks this as nice to have."
+                  className="rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                  ✗ {k} <span className="font-normal">· nice to have</span>
+                </span>
+              ) : (
+                <span key={k} className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-red-200">✗ {k}</span>
+              )
+            )}
             {!result.keywords.matched.length && !result.keywords.missing.length && (
               <p className="text-sm text-slate-500">No clear keywords found in the job description.</p>
             )}
           </div>
+          {(listedOnly.size > 0 || optional.size > 0) && (
+            <p className="mt-3 text-xs text-slate-500">
+              <span className="text-emerald-700">✓ shown in your experience</span> ·{" "}
+              <span className="text-amber-700">~ listed only (partial credit)</span> ·{" "}
+              <span className="text-red-700">✗ missing</span> · nice-to-have keywords count half
+            </p>
+          )}
         </div>
       ) : (
         <p className="rounded-md bg-indigo-50 p-3 text-sm text-indigo-800">

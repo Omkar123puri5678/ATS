@@ -59,6 +59,7 @@ so your resume never leaves your machine.
 - Prioritized list of what to fix
 
 **AI suggestions (optional, local)**
+- **Upload & rebuild:** upload your existing resume (any layout) and the AI extracts every section and rebuilds it in the builder as a clean, ATS-friendly resume, optionally tailored to a job description, with the ATS score before and after
 - Rewrites weak bullet points with action verbs and measurable impact
 - Writes a professional summary from your resume
 - Powered by any Ollama model (default: `llama3.2`). The rest of the app works fine without it.
@@ -90,7 +91,7 @@ The score is a weighted sum of six checks, all computed offline with open-source
 
 | Check | Weight | How |
 |---|---|---|
-| Keyword match | 35 | Skills and frequent terms extracted from the job description, matched in the resume |
+| Keyword match | 35 | Skills and frequent terms from the job description, matched with synonyms and word forms (Postgres = PostgreSQL, tests = testing). Skills shown in experience or projects earn full credit, skills only in a skills list earn 60%, and nice-to-have requirements count half |
 | Content relevance | 10 | TF-IDF cosine similarity (scikit-learn) between resume and job description |
 | Sections | 20 | Detects standard headings: Experience, Education, Skills (+ Summary, Projects, Certifications) |
 | Contact info | 10 | Email, phone, LinkedIn/GitHub/portfolio link |
@@ -98,6 +99,8 @@ The score is a weighted sum of six checks, all computed offline with open-source
 | Length | 10 | 300–1000 words is ideal |
 
 Without a job description, the keyword and relevance checks are skipped and the other weights are rescaled.
+Lines copied word-for-word from the job description are ignored (keyword stuffing), and vague bullets
+("improved various things") get no impact credit even with a verb and a number.
 See [`backend/app/scorer.py`](backend/app/scorer.py).
 
 ## Tech stack
@@ -107,6 +110,27 @@ See [`backend/app/scorer.py`](backend/app/scorer.py).
 - **AI:** Ollama (Llama 3.2, Mistral, Qwen or any other local model)
 
 ## Getting started
+
+### Desktop app for Windows (no setup)
+
+Download `ATS-Resume-Maker-windows.zip` from the [Releases](https://github.com/Omkar123puri5678/ATS/releases)
+page, unzip it anywhere and double-click **ATS Resume Maker.exe**. It opens in its own window, like
+any other program. You don't need Python, Node.js or a browser, and nothing goes online. Your resume
+autosaves between launches. If [Ollama](https://ollama.com) is installed on the PC, AI suggestions
+work too.
+
+> Windows SmartScreen may warn that the app is from an unknown publisher, because it isn't
+> code-signed. Click **More info → Run anyway**.
+
+To build it yourself (needs Python 3.10+ and Node.js 20+, with `backend/.venv` set up as in Option 2):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File desktop\build.ps1
+```
+
+The app is written to `desktop\dist\ATS Resume Maker\`, and a zip ready to share is written next to it.
+[`desktop/ats_app.py`](desktop/ats_app.py) starts the FastAPI backend in the background and shows the
+React app in a native WebView2 window ([pywebview](https://pywebview.flowrl.com)), packaged with PyInstaller.
 
 ### Option 1: Docker (easiest)
 
@@ -138,6 +162,11 @@ npm run dev
 
 Open http://localhost:5173.
 
+### Try it with sample resumes
+
+[`samples/`](samples/README.md) has fictional resumes (strong, average, weak, fresher, non-tech) in PDF,
+DOCX and TXT, plus job descriptions to paste in. `python samples/score_all.py` scores them all in one table.
+
 ### Enable AI suggestions (optional)
 
 1. Install [Ollama](https://ollama.com/download)
@@ -165,6 +194,7 @@ Interactive docs are at http://localhost:8000/docs when the backend is running.
 | POST | `/api/analyze-text` | Analyze plain text (`resume_text`, `job_description`) |
 | POST | `/api/ai/rewrite-bullets` | Rewrite bullet points with the local LLM |
 | POST | `/api/ai/summary` | Generate a professional summary |
+| POST | `/api/ai/build-resume` | Multipart `file` (+ optional `job_description`) → resume rebuilt in the builder's format, plus `score_before` / `score_after` |
 
 ## Project structure
 

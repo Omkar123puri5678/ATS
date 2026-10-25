@@ -1,0 +1,28 @@
+Aarav Mehta
+aarav.mehta@example.com | +91 90000 11111 | linkedin.com/in/aarav-mehta-demo | github.com/aarav-demo
+
+SUMMARY
+Backend-focused software engineer with 3 years of experience building scalable REST APIs and cloud services in Python and Node.js.
+
+EXPERIENCE
+Software Engineer, Brightline Tech (Jul 2023 - Present)
+- Designed and built 12 REST APIs with FastAPI and PostgreSQL serving 40,000 daily users
+- Reduced p95 API latency by 45% by adding Redis caching and query indexing
+- Led migration of 8 services to Docker and Kubernetes on AWS, cutting hosting cost by 30%
+- Automated CI/CD with GitHub Actions, reducing release time from 2 days to 3 hours
+Software Engineering Intern, Nimbus Labs (Jan 2023 - Jun 2023)
+- Developed a React and TypeScript admin dashboard used by 150 support staff
+- Wrote 200+ unit tests with Pytest and Jest, raising coverage from 52% to 88%
+
+PROJECTS
+- Built an open-source job tracker in React and Node.js with 1,200 GitHub stars
+- Implemented a real-time chat service with WebSockets handling 5,000 concurrent users
+
+EDUCATION
+B.Tech in Computer Science, Demo Institute of Technology, 2019 - 2023, CGPA 8.9
+
+SKILLS
+Python, JavaScript, TypeScript, SQL, FastAPI, Django, Node.js, React, PostgreSQL, MongoDB, Redis, Docker, Kubernetes, AWS, Git, CI/CD, Microservices, REST APIs, Linux
+
+CERTIFICATIONS
+AWS Certified Developer - Associate (2024)
