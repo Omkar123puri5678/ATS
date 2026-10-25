@@ -1,0 +1,57 @@
+name: Bug report
+description: Something isn't working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please **don't attach a real resume** with personal details. Use a sample or remove your contact info first.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect to see?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the Analyzer
+        2. Upload a DOCX file
+        3. Click "Analyze"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Resume Builder
+        - PDF export
+        - ATS Analyzer / scoring
+        - AI suggestions (Ollama)
+        - Docker / setup
+        - Docs
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: run-mode
+    attributes:
+      label: How are you running the app?
+      options:
+        - Docker Compose
+        - Locally (uvicorn + npm run dev)
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Windows 11, Chrome 130, Python 3.12, Node 22"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Backend console output, browser console errors, or screenshots.
+      render: shell

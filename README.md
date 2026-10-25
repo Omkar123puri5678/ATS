@@ -1,12 +1,47 @@
+<div align="center">
+
 # 📄 ATS Resume Maker
+
+**Build an ATS-friendly resume and score it against any job description, for free and fully on your own machine.**
 
 [![CI](https://github.com/Omkar123puri5678/ATS/actions/workflows/ci.yml/badge.svg)](https://github.com/Omkar123puri5678/ATS/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+<br/>
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Ollama](https://img.shields.io/badge/AI-Ollama_(local)-000000?logo=ollama&logoColor=white)
+
+[Getting started](#getting-started) · [User Guide](docs/USER_GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Report a bug](https://github.com/Omkar123puri5678/ATS/issues/new?template=bug_report.yml) · [Request a feature](https://github.com/Omkar123puri5678/ATS/issues/new?template=feature_request.yml)
+
+</div>
+
+---
 
 An open-source resume builder with an AI-powered ATS (Applicant Tracking System) analyzer.
 Build an ATS-friendly resume, export it as a PDF, and score any resume against a job description,
 all without paid APIs. AI features run on **local open-source models** through [Ollama](https://ollama.com),
 so your resume never leaves your machine.
+
+> 🔒 **Private by design:** no accounts, no tracking, no third-party AI APIs. Uploaded resumes are
+> processed in memory and never written to disk.
+
+## Contents
+
+- [Features](#features)
+- [Documentation](#documentation)
+- [How the scoring works](#how-the-scoring-works)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Configuration](#configuration)
+- [API](#api)
+- [Project structure](#project-structure)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
 
 ## Features
 
@@ -134,7 +169,10 @@ Interactive docs are at http://localhost:8000/docs when the backend is running.
 ## Project structure
 
 ```
-.github/workflows/ci.yml   Tests and build on every push / PR
+.github/
+  workflows/ci.yml   Tests and build on every push / PR
+  ISSUE_TEMPLATE/    Bug report and feature request forms
+  dependabot.yml     Weekly dependency update PRs
 docs/                      User guide, architecture, workflows, developer guide
 backend/
   app/
@@ -168,9 +206,19 @@ pytest
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md).
 A good first contribution is adding skills for your field to [`backend/app/skills.py`](backend/app/skills.py).
+
+Found a security issue? Please report it privately. See [SECURITY.md](SECURITY.md).
+Release notes are in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-[MIT](LICENSE)
+Released under the [MIT License](LICENSE).
+
+<div align="center">
+
+If this project helps you land an interview, consider giving it a ⭐
+
+</div>

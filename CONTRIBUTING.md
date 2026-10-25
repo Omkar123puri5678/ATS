@@ -1,6 +1,7 @@
 # Contributing
 
-Thanks for helping improve ATS Resume Maker!
+Thanks for helping improve ATS Resume Maker! By taking part, you agree to follow our
+[Code of Conduct](CODE_OF_CONDUCT.md). To report a security issue, see [SECURITY.md](SECURITY.md).
 
 ## Getting set up
 
