@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      # Points at Ollama on your machine by default. With the "ai" profile
+      # below, set OLLAMA_URL=http://ollama:11434 to use the bundled container.
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+  # Optional: run Ollama in Docker too.
+  #   OLLAMA_URL=http://ollama:11434 docker compose --profile ai up
+  #   docker compose exec ollama ollama pull llama3.2
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ai"]
+    volumes:
+      - ollama:/root/.ollama
+
+volumes:
+  ollama:
