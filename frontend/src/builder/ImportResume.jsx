@@ -19,7 +19,14 @@ export function ImportResume({ aiAvailable, onImported }) {
     try {
       const res = await api.buildResume(file, jobDescription);
       onImported(res.resume);
-      setScores({ before: res.score_before, after: res.score_after, tailored: !!jobDescription.trim() });
+      setScores({
+        before: res.score_before,
+        after: res.score_after,
+        tailored: !!jobDescription.trim(),
+        dropped: res.dropped_skills || [],
+        restored: res.restored_skills || [],
+        masked: res.masked_numbers || [],
+      });
       setOpen(false);
     } catch (e) {
       setError(e.message === "Failed to fetch" ? "Cannot reach the backend. Is it running on port 8000?" : e.message);
@@ -58,6 +65,22 @@ export function ImportResume({ aiAvailable, onImported }) {
           <p className="mt-3 rounded-md bg-emerald-50 p-3 text-sm text-emerald-800">
             Resume rebuilt. ATS score{scores.tailored ? " for this job" : ""}: <b>{scores.before}</b> → <b>{scores.after}</b>.
             Review every section below: fill in any <code>[X%]</code> placeholders with your real numbers, and fix anything the AI got wrong.
+            {scores.dropped.length > 0 && (
+              <span className="mt-1 block text-xs text-emerald-700">
+                Removed skills the AI added that are not in your original resume: {scores.dropped.join(", ")}. Add them back only if you really have them.
+              </span>
+            )}
+            {scores.masked.length > 0 && (
+              <span className="mt-1 block text-xs font-medium text-amber-700">
+                The AI made up {scores.masked.length} number(s) that are not in your original resume. They were
+                replaced with [X] placeholders: put in your real figures or remove them.
+              </span>
+            )}
+            {scores.restored.length > 0 && (
+              <span className="mt-1 block text-xs text-emerald-700">
+                Added back skills from your original resume that the AI left out: {scores.restored.join(", ")}.
+              </span>
+            )}
           </p>
         )}
       </div>

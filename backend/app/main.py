@@ -109,12 +109,22 @@ async def build_resume(
     except llm.LLMUnavailableError as e:
         raise HTTPException(503, str(e))
     resume = resume_model.normalize(raw)
+    resume["skills"], dropped_skills = resume_model.keep_supported_skills(resume["skills"], text)
+    resume["skills"], restored_skills = resume_model.restore_missing_skills(resume["skills"], text)
+    masked_numbers = resume_model.mask_invented_numbers(resume, text)
     if not (resume["name"] or resume["experience"] or resume["education"]):
         raise HTTPException(502, "The AI model did not return a usable resume. Please try again.")
     before, after = await run_in_threadpool(
         lambda: (analyze(text, job_description), analyze(resume_model.to_text(resume), job_description))
     )
-    return {"resume": resume, "score_before": before["score"], "score_after": after["score"]}
+    return {
+        "resume": resume,
+        "score_before": before["score"],
+        "score_after": after["score"],
+        "dropped_skills": dropped_skills,
+        "restored_skills": restored_skills,
+        "masked_numbers": masked_numbers,
+    }
 
 
 # In the single-container deployment (root Dockerfile) the built frontend is

@@ -28,28 +28,38 @@ async def status() -> dict:
     return {"available": has_model, "model": OLLAMA_MODEL, "models": models}
 
 
-async def _generate(prompt: str, timeout: float = 120, num_ctx: int | None = None) -> str:
-    options = {"temperature": 0.4}
+async def _generate(
+    prompt: str, timeout: float = 120, num_ctx: int | None = None, temperature: float = 0.4
+) -> str:
+    options = {"temperature": temperature}
     if num_ctx:
         options["num_ctx"] = num_ctx
-    try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            r = await client.post(
-                f"{OLLAMA_URL}/api/generate",
-                json={
-                    "model": OLLAMA_MODEL,
-                    "prompt": prompt,
-                    "stream": False,
-                    "format": "json",
-                    "options": options,
-                },
-            )
-            r.raise_for_status()
+    payload = {"model": OLLAMA_MODEL, "prompt": prompt, "stream": False, "format": "json", "options": options}
+    # One retry: Ollama can fail the first request while it loads the model.
+    for attempt in range(2):
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                r = await client.post(f"{OLLAMA_URL}/api/generate", json=payload)
+            if r.status_code >= 500 and attempt == 0:
+                continue
+            if r.is_error:
+                try:
+                    detail = r.json().get("error") or r.text
+                except ValueError:
+                    detail = r.text or r.reason_phrase
+                raise LLMUnavailableError(f"Ollama error: {detail}")
             return r.json()["response"]
-    except httpx.HTTPError as e:
-        raise LLMUnavailableError(
-            f"Could not reach Ollama at {OLLAMA_URL}. Is it running with '{OLLAMA_MODEL}' pulled?"
-        ) from e
+        except httpx.TimeoutException as e:
+            raise LLMUnavailableError(
+                f"'{OLLAMA_MODEL}' took too long to answer. Try again, or use a faster model."
+            ) from e
+        except httpx.HTTPError as e:
+            if attempt == 0:
+                continue
+            raise LLMUnavailableError(
+                f"Could not reach Ollama at {OLLAMA_URL}. Is it running with '{OLLAMA_MODEL}' pulled?"
+            ) from e
+    raise LLMUnavailableError(f"Ollama could not run '{OLLAMA_MODEL}'. Try again in a moment.")
 
 
 async def rewrite_bullets(bullets: list[str], job_description: str = "") -> list[dict]:
@@ -113,7 +123,8 @@ async def build_resume(resume_text: str, job_description: str = "") -> dict:
     jd_part = (
         f"""
 Tailor it to this job description: put the most relevant experience and skills first and use
-its keywords wherever they truthfully describe the candidate's work.
+its wording only where it truthfully describes work the resume already mentions. Do NOT add
+the job's skills or requirements to the resume unless the resume itself shows them.
 Job description:
 {job_description[:3000]}
 """
@@ -125,12 +136,18 @@ Read the resume below. Its text may be jumbled by columns, tables or icons. Extr
 of information and rebuild it as a clean, ATS-friendly resume:
 - keep all jobs, projects, education, skills and certifications; never drop an entry
 - never invent employers, titles, dates, degrees, skills or numbers
+- keep every bullet under the job or project it came from; only create a project if the
+  resume has one, and always give it a name
 - rewrite each bullet to start with a strong action verb, under 30 words, focused on impact;
-  if a metric is missing, add a placeholder like [X%] rather than making one up
+  one rewritten bullet per original bullet, never split one into several
+- keep every number, percentage and metric from the original exactly; only if a bullet has
+  no metric at all, add a placeholder like [X%] rather than making one up
+- never add tools, features or results the original bullet does not mention
 - write a 2-3 sentence professional summary from the resume's facts, no first-person pronouns
 - "title" is the candidate's target or current job title
-- dates as "Mon YYYY" (e.g. "Jun 2024"); use "Present" for current roles
-- group skills into a few categories, one category per list item
+- copy dates as the resume gives them (e.g. "Jun 2024" or "2022"); use "Present" for current roles
+- skills: every skill the resume lists, and nothing it does not, grouped into a few named
+  categories such as "Languages: Python, Java", one category per list item
 - use "" or [] for anything the resume does not contain
 {jd_part}
 Resume:
@@ -140,7 +157,7 @@ Respond with JSON only, exactly in this shape:
 {RESUME_SCHEMA}"""
     # Long input and output: allow a bigger context window and more time than
     # the other prompts, since small local models can be slow here.
-    raw = await _generate(prompt, timeout=300, num_ctx=8192)
+    raw = await _generate(prompt, timeout=300, num_ctx=8192, temperature=0.2)
     try:
         data = json.loads(raw)
     except json.JSONDecodeError:
